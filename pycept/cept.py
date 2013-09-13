@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 import requests
+import json
 
 DEFAULT_BASE_URL = "http://api.cept.at"
 DEFAULT_VERSION = "v1"
@@ -36,15 +37,33 @@ class Cept(object):
     self.api_url = "%s/%s" % (base_url, version)
 
 
-  def getSdr(self, term):
-    payload = self._buildPayload()
-    payload['term'] = term
+  def getBitmap(self, term):
+    urlParams = self._buildUrlParams()
+    urlParams['term'] = term
     url = "%s/term2bitmap" % (self.api_url,)
-    response = requests.get(url, params=payload)
-    return self._bitmapToSdr(response.json['bitmap'])
+    response = requests.get(url, params=urlParams)
+    return response.json['bitmap']
 
 
-  def _buildPayload(self):
+  def getSdr(self, term):
+    return self._bitmapToSdr(self.getBitmap(term))
+
+
+  def bitmapToTerms(self, width, height, onBits):
+    urlParams = self._buildUrlParams()
+    data = json.dumps({'width': width, 'height': height, 'positions': onBits})
+    url = "%s/bitmap2terms" % (self.api_url)
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(url, params=urlParams, headers=headers, data=data)
+    similar = []
+    for term in response.json['similarterms']:
+      similar.append(
+        {'term': term['term'], 'rank': term['rank']}
+      )
+    return similar
+
+
+  def _buildUrlParams(self):
     return {
       'app_id': self.app_id,
       'app_key': self.app_key
@@ -63,7 +82,6 @@ class Cept(object):
       nextOn = positions.pop(0)
 
     for sdrIndex in range(0, total):
-      print("nextOn: %s  sdrIndex: %s" % (str(nextOn), str(sdrIndex)))
 
       if nextOn is None or nextOn != sdrIndex:
         sdr += "0"
