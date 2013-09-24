@@ -15,7 +15,7 @@ execfile('pycept/version.py', {}, sdict)
 sdict.update({
     'name' : 'pycept',
     'description' : 'Python client for CEPT API',
-    'url': 'http://github.com/rhyolight/pycept',
+    'url': 'http://github.com/numenta/pycept',
     'download_url' : 'https://pypi.python.org/packages/source/g/pycept/pycept-%s.tar.gz' % sdict['version'],
     'author' : 'Matthew Taylor',
     'author_email' : 'matt@numenta.org',
