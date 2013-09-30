@@ -1,7 +1,12 @@
 # Pycept
+
 ## A python client for the CEPT API
 
 This is a *very* minimal HTTP client library for the [CEPT API](https://cept.3scale.net/docs). Currently, it only converts words into standard distributed representations based on the bitmap values return by the [/term2bitmap](https://cept.3scale.net/docs#/term2bitmap) endpoint.
+
+## CEPT Account
+
+[Get CEPT API credentials here](https://cept.3scale.net/signup). This will give you a free trail. To upgrade to the "Beta Program", you'll need to go to the [admin page](https://cept.3scale.net/admin/) and click on "Change Plan" on the right, which will notify CEPT that you'd like expanded API access. **This is required for usage of pycept!** Pycept depends on expanded API endpoints unavailable to the free trial.
 
 ### Installation
 
