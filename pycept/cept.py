@@ -20,29 +20,56 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import requests
+import os
 import json
+import requests
 
 DEFAULT_BASE_URL = "http://api.cept.at"
 DEFAULT_VERSION = "v1"
+DEFAULT_CACHE_DIR = "/tmp/pycept"
 
 class Cept(object):
   """
   Main class for the Cept API.
   """
 
-  def __init__(self, app_id, app_key, base_url=DEFAULT_BASE_URL, version=DEFAULT_VERSION):
+  def __init__(self, app_id, app_key, base_url=DEFAULT_BASE_URL, 
+      version=DEFAULT_VERSION, cache_dir=DEFAULT_CACHE_DIR):
     self.app_id = app_id
     self.app_key = app_key
     self.api_url = "%s/%s" % (base_url, version)
+    # Create the cache directory if necessary.
+    if not os.path.exists(cache_dir):
+      os.mkdir(cache_dir)
+    self.cache_dir = cache_dir
+
 
 
   def getBitmap(self, term):
     urlParams = self._buildUrlParams()
     urlParams['term'] = term
     url = "%s/term2bitmap" % (self.api_url,)
-    response = requests.get(url, params=urlParams)
-    return response.json['bitmap']
+    # Create a cache location for each term, where it will either be read in from
+    # or cached within if we have to go to the CEPT API to get the SDR.
+    cache_file = os.path.join(self.cache_dir, term + '.json')
+    # Get it from the cache if it's there.
+    if os.path.exists(cache_file):
+      cached_sdr = json.loads(open(cache_file).read())
+    # Get it from CEPT API if it's not cached.
+    else:
+      print '\tfetching %s from CEPT API' % term
+      response = requests.get(url, params=urlParams)
+      cached_sdr = response.json['bitmap']
+      # attach the sparcity for reference
+      total = float(cached_sdr['width']) * float(cached_sdr['height'])
+      on = len(cached_sdr['positions'])
+      sparcity = round((on / total) * 100)
+      cached_sdr['sparcity'] = sparcity
+      # write to cache
+      with open(cache_file, 'w') as f:
+        f.write(json.dumps(cached_sdr))
+
+    return cached_sdr
 
 
   def getSdr(self, term):

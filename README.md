@@ -27,6 +27,12 @@ This is a *very* minimal HTTP client library for the [CEPT API](https://cept.3sc
       catBitmap['positions']
     )
 
+### Caching
+
+To prevent duplicate requests to the CEPT API, pycept will cache SDR responses by default to `/tmp/pycept`. You can provide your own cache directory location by specifying a `cache_dir` value to the constructor:
+
+    pycept.Cept("your_app_id", "your_app_key", cache_dir="./my-cache")
+
 ### Run Tests
 
     nosetests
