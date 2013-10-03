@@ -60,11 +60,11 @@ class Cept(object):
       print '\tfetching %s from CEPT API' % term
       response = requests.get(url, params=urlParams)
       cached_sdr = response.json['bitmap']
-      # attach the sparcity for reference
+      # attach the sparsity for reference
       total = float(cached_sdr['width']) * float(cached_sdr['height'])
       on = len(cached_sdr['positions'])
-      sparcity = round((on / total) * 100)
-      cached_sdr['sparcity'] = sparcity
+      sparsity = round((on / total) * 100)
+      cached_sdr['sparsity'] = sparsity
       # write to cache
       with open(cache_file, 'w') as f:
         f.write(json.dumps(cached_sdr))
@@ -77,18 +77,24 @@ class Cept(object):
 
 
   def bitmapToTerms(self, width, height, onBits):
-    urlParams = self._buildUrlParams()
-    data = json.dumps({'width': width, 'height': height, 'positions': onBits})
-    url = "%s/bitmap2terms" % (self.api_url)
-    headers = {'Content-Type': 'application/json'}
-    response = requests.post(url, params=urlParams, headers=headers, data=data)
+    if len(onBits) is 0:
+      raise(Exception("Cannot convert empty bitmap to term!"))
+    response = self.bitmapToTermsRaw(width, height, onBits)
     similar = []
-    for term in response.json['similarterms']:
+    for term in response['similarterms']:
       similar.append(
         {'term': term['term'], 'rank': term['rank']}
       )
     return similar
 
+
+  def bitmapToTermsRaw(self, width, height, onBits):
+    urlParams = self._buildUrlParams()
+    data = json.dumps({'width': width, 'height': height, 'positions': onBits})
+    url = "%s/bitmap2terms" % (self.api_url)
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(url, params=urlParams, headers=headers, data=data)
+    return response.json
 
   def _buildUrlParams(self):
     return {
