@@ -27,6 +27,7 @@ import requests
 DEFAULT_BASE_URL = "http://api.cept.at"
 DEFAULT_VERSION = "v1"
 DEFAULT_CACHE_DIR = "/tmp/pycept"
+DEFAULT_VERBOSITY = 0
 
 class Cept(object):
   """
@@ -34,7 +35,8 @@ class Cept(object):
   """
 
   def __init__(self, app_id, app_key, base_url=DEFAULT_BASE_URL, 
-      version=DEFAULT_VERSION, cache_dir=DEFAULT_CACHE_DIR):
+      version=DEFAULT_VERSION, cache_dir=DEFAULT_CACHE_DIR,
+      verbosity=DEFAULT_VERBOSITY):
     self.app_id = app_id
     self.app_key = app_key
     self.api_url = "%s/%s" % (base_url, version)
@@ -42,6 +44,7 @@ class Cept(object):
     if not os.path.exists(cache_dir):
       os.mkdir(cache_dir)
     self.cache_dir = cache_dir
+    self.verbosity = verbosity
 
 
 
@@ -57,7 +60,8 @@ class Cept(object):
       cached_sdr = json.loads(open(cache_file).read())
     # Get it from CEPT API if it's not cached.
     else:
-      print '\tfetching %s from CEPT API' % term
+      if self.verbosity > 0:
+        print '\tfetching %s from CEPT API' % term
       response = requests.get(url, params=urlParams)
       cached_sdr = response.json['bitmap']
       # attach the sparsity for reference
