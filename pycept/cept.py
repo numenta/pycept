@@ -63,7 +63,7 @@ class Cept(object):
       if self.verbosity > 0:
         print '\tfetching %s from CEPT API' % term
       response = requests.get(url, params=urlParams)
-      cached_sdr = response.json['bitmap']
+      cached_sdr = json.loads(response.content)['bitmap']
       # attach the sparsity for reference
       total = float(cached_sdr['width']) * float(cached_sdr['height'])
       on = len(cached_sdr['positions'])
@@ -98,7 +98,7 @@ class Cept(object):
     url = "%s/bitmap2terms" % (self.api_url)
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, params=urlParams, headers=headers, data=data)
-    return response.json
+    return json.loads(response.content)
 
   def _buildUrlParams(self):
     return {
