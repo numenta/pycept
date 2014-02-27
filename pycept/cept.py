@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import hashlib
 import os
 import json
 import requests
@@ -95,10 +96,23 @@ class Cept(object):
   def bitmapToTermsRaw(self, width, height, onBits):
     urlParams = self._buildUrlParams()
     data = json.dumps({'width': width, 'height': height, 'positions': onBits})
-    url = "%s/bitmap2terms" % (self.api_url)
-    headers = {'Content-Type': 'application/json'}
-    response = requests.post(url, params=urlParams, headers=headers, data=data)
-    return json.loads(response.content)
+    cache_path = 'bitmap-' + hashlib.sha224(data).hexdigest() + '.json'
+    cache_file = os.path.join(self.cache_dir, cache_path)
+    
+    # Get it from the cache if it's there.
+    if os.path.exists(cache_file):
+      return json.loads(open(cache_file).read())
+    else:
+      url = "%s/bitmap2terms" % (self.api_url)
+      headers = {'Content-Type': 'application/json'}
+      response = requests.post(url, params=urlParams,
+                               headers=headers, data=data)
+
+      with open(cache_file, 'w') as f:
+        f.write(response.content)
+
+      return json.loads(response.content)
+
 
   def _buildUrlParams(self):
     return {
