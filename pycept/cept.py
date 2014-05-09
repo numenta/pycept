@@ -24,9 +24,10 @@ import hashlib
 import os
 import json
 import requests
+import urllib
 
-DEFAULT_BASE_URL = "http://api.cept.at"
-DEFAULT_VERSION = "v1"
+DEFAULT_BASE_URL = "http://s_api.cortical.io:80/rest/"
+DEFAULT_RETINA = "eng_syn"
 DEFAULT_CACHE_DIR = "/tmp/pycept"
 DEFAULT_VERBOSITY = 0
 
@@ -35,12 +36,14 @@ class Cept(object):
   Main class for the Cept API.
   """
 
-  def __init__(self, app_id, app_key, base_url=DEFAULT_BASE_URL, 
-      version=DEFAULT_VERSION, cache_dir=DEFAULT_CACHE_DIR,
-      verbosity=DEFAULT_VERBOSITY):
-    self.app_id = app_id
-    self.app_key = app_key
-    self.api_url = "%s/%s" % (base_url, version)
+  def __init__(self, api_key,
+               base_url=DEFAULT_BASE_URL, 
+               retina=DEFAULT_RETINA,
+               cache_dir=DEFAULT_CACHE_DIR,
+               verbosity=DEFAULT_VERBOSITY):
+    self.api_key = api_key
+    self.api_url = base_url
+    self.retina = retina
     # Create the cache directory if necessary.
     if not os.path.exists(cache_dir):
       os.mkdir(cache_dir)
@@ -50,52 +53,60 @@ class Cept(object):
 
 
   def getBitmap(self, term):
-    urlParams = self._buildUrlParams()
-    urlParams['term'] = term
-    url = "%s/term2bitmap" % (self.api_url,)
+    url = self._buildUrl("text")
     # Create a cache location for each term, where it will either be read in from
     # or cached within if we have to go to the CEPT API to get the SDR.
     cache_file = os.path.join(self.cache_dir, term + '.json')
     # Get it from the cache if it's there.
     if os.path.exists(cache_file):
-      cached_sdr = json.loads(open(cache_file).read())
+      sdr = json.loads(open(cache_file).read())
     # Get it from CEPT API if it's not cached.
     else:
       if self.verbosity > 0:
         print '\tfetching %s from CEPT API' % term
-      response = requests.get(url, params=urlParams)
-      cached_sdr = json.loads(response.content)['bitmap']
+      headers = {'Content-Type': 'application/json'}
+      response = requests.post(url,
+                               headers=headers,
+                               data=term)
+      sdr = json.loads(response.content)[0]
+
+      # Default width and height
+      if not 'width' in sdr:
+        sdr['width']  = 64
+      if not 'height' in sdr:
+        sdr['height'] = 64
+
       # attach the sparsity for reference
-      total = float(cached_sdr['width']) * float(cached_sdr['height'])
-      on = len(cached_sdr['positions'])
+      total = float(sdr['width']) * float(sdr['height'])
+      on = len(sdr['positions'])
       sparsity = round((on / total) * 100)
-      cached_sdr['sparsity'] = sparsity
+      sdr['sparsity'] = sparsity
       # write to cache
       with open(cache_file, 'w') as f:
-        f.write(json.dumps(cached_sdr))
+        f.write(json.dumps(sdr))
 
-    return cached_sdr
+    return sdr
 
 
   def getSdr(self, term):
     return self._bitmapToSdr(self.getBitmap(term))
 
 
-  def bitmapToTerms(self, width, height, onBits):
+  def bitmapToTerms(self, _width, _height, onBits):
     if len(onBits) is 0:
       raise(Exception("Cannot convert empty bitmap to term!"))
-    response = self.bitmapToTermsRaw(width, height, onBits)
+    response = self.bitmapToTermsRaw(onBits)
     similar = []
-    for term in response['similarterms']:
+    for term in response:
       similar.append(
-        {'term': term['term'], 'rank': term['rank']}
+        {'term': term['term'], 'score': term['score']}
       )
     return similar
 
 
-  def bitmapToTermsRaw(self, width, height, onBits):
-    urlParams = self._buildUrlParams()
-    data = json.dumps({'width': width, 'height': height, 'positions': onBits})
+  def bitmapToTermsRaw(self, onBits):
+    url = self._buildUrl("expressions/similarTerms")
+    data = json.dumps({'positions': onBits})
     cache_path = 'bitmap-' + hashlib.sha224(data).hexdigest() + '.json'
     cache_file = os.path.join(self.cache_dir, cache_path)
     
@@ -103,10 +114,10 @@ class Cept(object):
     if os.path.exists(cache_file):
       return json.loads(open(cache_file).read())
     else:
-      url = "%s/bitmap2terms" % (self.api_url)
       headers = {'Content-Type': 'application/json'}
-      response = requests.post(url, params=urlParams,
-                               headers=headers, data=data)
+      response = requests.post(url,
+                               headers=headers,
+                               data=data)
 
       with open(cache_file, 'w') as f:
         f.write(response.content)
@@ -114,11 +125,10 @@ class Cept(object):
       return json.loads(response.content)
 
 
-  def _buildUrlParams(self):
-    return {
-      'app_id': self.app_id,
-      'app_key': self.app_key
-    }
+  def _buildUrl(self, endpoint, params={}):
+    params['api_key']    = self.api_key
+    params['retinaName'] = self.retina
+    return "%s%s?%s" % (self.api_url, endpoint, urllib.urlencode(params))
 
 
   def _bitmapToSdr(self, bitmap):
