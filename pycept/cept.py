@@ -92,7 +92,7 @@ class Cept(object):
     return self._bitmapToSdr(self.getBitmap(term))
 
 
-  def bitmapToTerms(self, _width, _height, onBits):
+  def bitmapToTerms(self, onBits):
     if len(onBits) is 0:
       raise(Exception("Cannot convert empty bitmap to term!"))
     response = self.bitmapToTermsRaw(onBits)
