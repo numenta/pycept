@@ -45,8 +45,9 @@ class Cept(object):
     self.api_url = base_url
     self.retina = retina
     # Create the cache directory if necessary.
+    cache_dir = os.path.join(cache_dir, retina)
     if not os.path.exists(cache_dir):
-      os.mkdir(cache_dir)
+      os.makedirs(cache_dir)
     self.cache_dir = cache_dir
     self.verbosity = verbosity
 
