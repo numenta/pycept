@@ -26,10 +26,29 @@ import json
 import requests
 import urllib
 
+
+
 DEFAULT_BASE_URL = "http://s_api.cortical.io:80/rest/"
 DEFAULT_RETINA = "eng_syn"
 DEFAULT_CACHE_DIR = "/tmp/pycept"
 DEFAULT_VERBOSITY = 0
+
+RETINA_SIZES = {
+  "eng_syn": {
+    "width": 64,
+    "height": 64
+  },
+  "eng_syn_morph": {
+    "width": 64,
+    "height": 64
+  },
+  "eng_gen": {
+    "width": 128,
+    "height": 128
+  }
+}
+
+
 
 class Cept(object):
   """
@@ -71,11 +90,10 @@ class Cept(object):
                                data=term)
       sdr = json.loads(response.content)[0]
 
-      # Default width and height
-      if not 'width' in sdr:
-        sdr['width']  = 64
-      if not 'height' in sdr:
-        sdr['height'] = 64
+      if (not 'width' in sdr) or (not 'height' in sdr):
+        size = RETINA_SIZES[self.retina]
+        sdr['width'] = size['width']
+        sdr['height'] = size['height']
 
       # attach the sparsity for reference
       total = float(sdr['width']) * float(sdr['height'])
