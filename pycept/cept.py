@@ -88,7 +88,11 @@ class Cept(object):
       response = requests.post(url,
                                headers=headers,
                                data=term)
-      sdr = json.loads(response.content)[0]
+      responseObj = json.loads(response.content)
+      if type(responseObj) == list:
+        sdr = responseObj[0]
+      else:
+        sdr = {"positions": []}
 
       if (not 'width' in sdr) or (not 'height' in sdr):
         size = RETINA_SIZES[self.retina]
