@@ -28,7 +28,7 @@ import urllib
 
 
 
-DEFAULT_BASE_URL = "http://s_api.cortical.io:80/rest/"
+DEFAULT_BASE_URL = "http://numenta.cortical.io:80/rest/"
 DEFAULT_RETINA = "eng_syn"
 DEFAULT_CACHE_DIR = "/tmp/pycept"
 DEFAULT_VERBOSITY = 0
@@ -70,6 +70,24 @@ class Cept(object):
     self.cache_dir = cache_dir
     self.verbosity = verbosity
 
+
+  def tokenize(self, text):
+    """Get a list of sentence tokens from a text string.
+
+    Example:
+      >>> c = cept.Cept(apiKey)
+      >>> c.tokenize('The cow jumped over the moon. Then it ran to the other '
+                     'side. And then the sun came up.')
+      [[u'cow', u'jumped', u'moon'], [u'ran', u'other side'], [u'sun', u'came']]
+
+    :param text: string to tokenize
+    :returns: a list of lists where each inner list contains the string tokens
+        from a sentence in the input text
+    """
+    url = self._buildUrl("text/tokenize")
+    headers = {"Content-Type": "application/json"}
+    response = requests.post(url, headers=headers, data=text)
+    return [sentence.split(",") for sentence in response.json()]
 
 
   def getBitmap(self, term):
