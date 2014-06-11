@@ -56,7 +56,7 @@ class Cept(object):
   """
 
   def __init__(self, api_key,
-               base_url=DEFAULT_BASE_URL, 
+               base_url=DEFAULT_BASE_URL,
                retina=DEFAULT_RETINA,
                cache_dir=DEFAULT_CACHE_DIR,
                verbosity=DEFAULT_VERBOSITY):
@@ -105,7 +105,8 @@ class Cept(object):
       headers = {'Content-Type': 'application/json'}
       response = requests.post(url,
                                headers=headers,
-                               data=term)
+                               data=term,
+                               auth=(self.api_key, ""))
       responseObj = json.loads(response.content)
       if type(responseObj) == list:
         sdr = responseObj[0]
@@ -167,7 +168,6 @@ class Cept(object):
 
 
   def _buildUrl(self, endpoint, params={}):
-    params['api_key']    = self.api_key
     params['retinaName'] = self.retina
     return "%s%s?%s" % (self.api_url, endpoint, urllib.urlencode(params))
 
