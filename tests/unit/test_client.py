@@ -3,6 +3,29 @@ import unittest
 
 class ClientTestCase(unittest.TestCase):
 
+
+  def testTokenizeEmptyString(self):
+    client = pycept.Cept("foo", "bar")
+    result = client.tokenize("")
+    self.assertListEqual(result, [])
+
+
+  def testTokenizeSingleSentence(self):
+    client = pycept.Cept("foo", "bar")
+    result = client.tokenize("The cow jumped over the moon.")
+    self.assertEqual(len(result), 1)
+    self.assertListEqual(result[0], ["cow", "jumped", "moon"])
+
+
+  def testTokenizeMultipleSentences(self):
+    client = pycept.Cept("foo", "bar")
+    result = client.tokenize(
+        "The cow jumped over the moon. And then the sun came up.")
+    self.assertEqual(len(result), 2)
+    self.assertListEqual(result[0], ["cow", "jumped", "moon"])
+    self.assertListEqual(result[1], ["sun", "came"])
+
+
   def testTinyEmptyBitMapToSdr(self):
     client = pycept.Cept('foo', 'bar')
     result = client._bitmapToSdr({
@@ -52,3 +75,7 @@ class ClientTestCase(unittest.TestCase):
     })
     self.assertEqual(result, "0011001100110011")
 
+
+
+if __name__ == "__main__":
+  unittest.main()
