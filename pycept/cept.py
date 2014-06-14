@@ -84,21 +84,33 @@ class Cept(object):
     :returns: a list of lists where each inner list contains the string tokens
         from a sentence in the input text
     """
-    url = self._buildUrl("text/tokenize")
-    headers = {"Content-Type": "application/json"}
-    response = requests.post(url, headers=headers, data=text)
-    return [sentence.split(",") for sentence in response.json()]
+    cache_file = os.path.join(self.cache_dir,
+                  'tokenize-' + hashlib.sha224(text).hexdigest() + '.json')
+    if os.path.exists(cache_file):
+      response = json.loads(open(cache_file).read())
+    else:
+      url = self._buildUrl("text/tokenize")
+      headers = {"Content-Type": "application/json"}
+      response = requests.post(url, headers=headers, data=text).json()
+      with open(cache_file, 'w') as f:
+        f.write(json.dumps(response))
+
+    return [sentence.split(",") for sentence in response]
 
 
   def getBitmap(self, term):
     url = self._buildUrl("text")
-    # Create a cache location for each term, where it will either be read in from
-    # or cached within if we have to go to the CEPT API to get the SDR.
-    cache_file = os.path.join(self.cache_dir, term + '.json')
-    # Get it from the cache if it's there.
+
+    # Create a cache location for each term, where it will either be read in
+    # from or cached within if we have to go to the CEPT API to get the SDR.
+    cache_file = os.path.join(self.cache_dir,
+                  'bitmap-' + hashlib.sha224(term).hexdigest() + '.json')
+
+    # Get it from the cache if it's there
     if os.path.exists(cache_file):
       sdr = json.loads(open(cache_file).read())
-    # Get it from CEPT API if it's not cached.
+
+    # Get it from CEPT API if it's not cached
     else:
       if self.verbosity > 0:
         print '\tfetching %s from CEPT API' % term
@@ -123,6 +135,7 @@ class Cept(object):
       on = len(sdr['positions'])
       sparsity = round((on / total) * 100)
       sdr['sparsity'] = sparsity
+      
       # write to cache
       with open(cache_file, 'w') as f:
         f.write(json.dumps(sdr))
@@ -149,7 +162,7 @@ class Cept(object):
   def bitmapToTermsRaw(self, onBits):
     url = self._buildUrl("expressions/similarTerms")
     data = json.dumps({'positions': onBits})
-    cache_path = 'bitmap-' + hashlib.sha224(data).hexdigest() + '.json'
+    cache_path = 'similarTerms-' + hashlib.sha224(data).hexdigest() + '.json'
     cache_file = os.path.join(self.cache_dir, cache_path)
     
     # Get it from the cache if it's there.
