@@ -84,16 +84,17 @@ class Cept(object):
     :returns: a list of lists where each inner list contains the string tokens
         from a sentence in the input text
     """
-    cache_file = os.path.join(self.cache_dir,
-                  'tokenize-' + hashlib.sha224(text).hexdigest() + '.json')
-    if os.path.exists(cache_file):
-      response = json.loads(open(cache_file).read())
+    cachePath = os.path.join(self.cache_dir,
+                  "tokenize-" + hashlib.sha224(text).hexdigest() + ".json")
+    if os.path.exists(cachePath):
+      with open(cachePath) as cacheFile:
+        response = json.load(cacheFile)
     else:
       url = self._buildUrl("text/tokenize")
       headers = {"Content-Type": "application/json"}
       response = requests.post(url, headers=headers, data=text).json()
-      with open(cache_file, 'w') as f:
-        f.write(json.dumps(response))
+      with open(cachePath, 'w') as f:
+        json.dump(response, f)
 
     return [sentence.split(",") for sentence in response]
 
@@ -103,18 +104,18 @@ class Cept(object):
 
     # Create a cache location for each term, where it will either be read in
     # from or cached within if we have to go to the CEPT API to get the SDR.
-    cache_file = os.path.join(self.cache_dir,
-                  'bitmap-' + hashlib.sha224(term).hexdigest() + '.json')
+    cachePath = os.path.join(self.cache_dir,
+                  "bitmap-" + hashlib.sha224(term).hexdigest() + ".json")
 
     # Get it from the cache if it's there
-    if os.path.exists(cache_file):
-      sdr = json.loads(open(cache_file).read())
+    if os.path.exists(cachePath):
+      sdr = json.loads(open(cachePath).read())
 
     # Get it from CEPT API if it's not cached
     else:
       if self.verbosity > 0:
-        print '\tfetching %s from CEPT API' % term
-      headers = {'Content-Type': 'application/json'}
+        print "\tfetching %s from CEPT API" % term
+      headers = {"Content-Type": "application/json"}
       response = requests.post(url,
                                headers=headers,
                                data=term,
@@ -125,19 +126,19 @@ class Cept(object):
       else:
         sdr = {"positions": []}
 
-      if (not 'width' in sdr) or (not 'height' in sdr):
+      if (not "width" in sdr) or (not "height" in sdr):
         size = RETINA_SIZES[self.retina]
-        sdr['width'] = size['width']
-        sdr['height'] = size['height']
+        sdr["width"] = size["width"]
+        sdr["height"] = size["height"]
 
       # attach the sparsity for reference
-      total = float(sdr['width']) * float(sdr['height'])
-      on = len(sdr['positions'])
+      total = float(sdr["width"]) * float(sdr["height"])
+      on = len(sdr["positions"])
       sparsity = round((on / total) * 100)
-      sdr['sparsity'] = sparsity
+      sdr["sparsity"] = sparsity
       
       # write to cache
-      with open(cache_file, 'w') as f:
+      with open(cachePath, 'w') as f:
         f.write(json.dumps(sdr))
 
     return sdr
@@ -154,42 +155,42 @@ class Cept(object):
     similar = []
     for term in response:
       similar.append(
-        {'term': term['term'], 'score': term['score']}
+        {"term": term["term"], "score": term["score"]}
       )
     return similar
 
 
   def bitmapToTermsRaw(self, onBits):
     url = self._buildUrl("expressions/similarTerms")
-    data = json.dumps({'positions': onBits})
-    cache_path = 'similarTerms-' + hashlib.sha224(data).hexdigest() + '.json'
-    cache_file = os.path.join(self.cache_dir, cache_path)
+    data = json.dumps({"positions": onBits})
+    cache_path = "similarTerms-" + hashlib.sha224(data).hexdigest() + ".json"
+    cachePath = os.path.join(self.cache_dir, cache_path)
     
     # Get it from the cache if it's there.
-    if os.path.exists(cache_file):
-      return json.loads(open(cache_file).read())
+    if os.path.exists(cachePath):
+      return json.loads(open(cachePath).read())
     else:
-      headers = {'Content-Type': 'application/json'}
+      headers = {"Content-Type": "application/json"}
       response = requests.post(url,
                                headers=headers,
                                data=data)
 
-      with open(cache_file, 'w') as f:
+      with open(cachePath, 'w') as f:
         f.write(response.content)
 
       return json.loads(response.content)
 
 
   def _buildUrl(self, endpoint, params={}):
-    params['retinaName'] = self.retina
+    params["retinaName"] = self.retina
     return "%s%s?%s" % (self.api_url, endpoint, urllib.urlencode(params))
 
 
   def _bitmapToSdr(self, bitmap):
-    width = bitmap['width']
-    height = bitmap['height']
+    width = bitmap["width"]
+    height = bitmap["height"]
     total = width * height
-    positions = bitmap['positions']
+    positions = bitmap["positions"]
     sdr = ""
     if len(positions) is 0:
       nextOn = None
