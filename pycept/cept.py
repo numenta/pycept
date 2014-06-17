@@ -55,12 +55,17 @@ class Cept(object):
   Main class for the Cept API.
   """
 
-  def __init__(self, api_key,
+  def __init__(self,
+               api_key=None,
                base_url=DEFAULT_BASE_URL,
                retina=DEFAULT_RETINA,
                cache_dir=DEFAULT_CACHE_DIR,
                verbosity=DEFAULT_VERBOSITY):
-    self.api_key = api_key
+    if api_key:
+      self.api_key = api_key
+    else:
+      self.api_key = os.environ["CEPT_API_KEY"]
+
     self.api_url = base_url
     self.retina = retina
     # Create the cache directory if necessary.
