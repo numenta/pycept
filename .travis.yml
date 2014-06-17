@@ -5,6 +5,7 @@ python:
 install:
 - pip install requests
 - pip install nose
+- pip install coverage
 - pip install httpretty
 
 script:
