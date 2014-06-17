@@ -1,4 +1,5 @@
 .idea/
+.coverage
 cache
 build
 dist

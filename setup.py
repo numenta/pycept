@@ -23,7 +23,8 @@ sdict.update({
     'license' : 'MIT',
     'install_requires': [
         'requests',
-        'nose'],
+        'nose',
+        'httpretty'],
     'test_suite': 'tests.unit',
     'packages' : ['pycept'],
     'classifiers' : [
