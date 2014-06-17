@@ -1,4 +1,4 @@
-# Pycept
+# Pycept [![Build Status](https://travis-ci.org/numenta/pycept.svg?branch=master)](https://travis-ci.org/numenta/pycept)
 
 ## A python client for the CEPT API
 
