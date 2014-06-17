@@ -56,23 +56,23 @@ class Cept(object):
   """
 
   def __init__(self,
-               api_key=None,
-               base_url=DEFAULT_BASE_URL,
+               apiKey=None,
+               baseUrl=DEFAULT_BASE_URL,
                retina=DEFAULT_RETINA,
-               cache_dir=DEFAULT_CACHE_DIR,
+               cacheDir=DEFAULT_CACHE_DIR,
                verbosity=DEFAULT_VERBOSITY):
-    if api_key:
-      self.api_key = api_key
+    if apiKey:
+      self.apiKey = apiKey
     else:
-      self.api_key = os.environ["CEPT_API_KEY"]
+      self.apiKey = os.environ["CEPT_API_KEY"]
 
-    self.api_url = base_url
+    self.apiUrl = baseUrl
     self.retina = retina
     # Create the cache directory if necessary.
-    cache_dir = os.path.join(cache_dir, retina)
-    if not os.path.exists(cache_dir):
-      os.makedirs(cache_dir)
-    self.cache_dir = cache_dir
+    cacheDir = os.path.join(cacheDir, retina)
+    if not os.path.exists(cacheDir):
+      os.makedirs(cacheDir)
+    self.cacheDir = cacheDir
     self.verbosity = verbosity
 
 
@@ -89,7 +89,7 @@ class Cept(object):
     :returns: a list of lists where each inner list contains the string tokens
         from a sentence in the input text
     """
-    cachePath = os.path.join(self.cache_dir,
+    cachePath = os.path.join(self.cacheDir,
                   "tokenize-" + hashlib.sha224(text).hexdigest() + ".json")
     if os.path.exists(cachePath):
       with open(cachePath) as cacheFile:
@@ -109,7 +109,7 @@ class Cept(object):
 
     # Create a cache location for each term, where it will either be read in
     # from or cached within if we have to go to the CEPT API to get the SDR.
-    cachePath = os.path.join(self.cache_dir,
+    cachePath = os.path.join(self.cacheDir,
                   "bitmap-" + hashlib.sha224(term).hexdigest() + ".json")
 
     # Get it from the cache if it's there
@@ -124,7 +124,7 @@ class Cept(object):
       response = requests.post(url,
                                headers=headers,
                                data=term,
-                               auth=(self.api_key, ""))
+                               auth=(self.apiKey, ""))
       responseObj = json.loads(response.content)
       if type(responseObj) == list:
         sdr = responseObj[0]
@@ -141,7 +141,7 @@ class Cept(object):
       on = len(sdr["positions"])
       sparsity = round((on / total) * 100)
       sdr["sparsity"] = sparsity
-      
+
       # write to cache
       with open(cachePath, 'w') as f:
         f.write(json.dumps(sdr))
@@ -151,15 +151,15 @@ class Cept(object):
 
   def getSdr(self, term):
     return self._bitmapToSdr(self.getBitmap(term))
-  
-  
+
+
   def compare(self, bitmap1, bitmap2):
     """
     Given two bitmaps, return their comparison, i.e. a dict with the CEPT
     comparison metrics.
-    
+
     Here's an example return dict:
-    
+
       {
         "Cosine-Similarity": 0.6666666666666666,
         "Euclidean-Distance": 0.3333333333333333,
@@ -171,7 +171,7 @@ class Cept(object):
         "Size-right": 9,
         "Weighted-Scoring": 0.4436476984102028
       }
-      
+
     """
     url = self._buildUrl("compare")
     data = json.dumps(
@@ -189,7 +189,7 @@ class Cept(object):
 
   def bitmapToTerms(self, onBits):
     if len(onBits) is 0:
-      raise(Exception("Cannot convert empty bitmap to term!"))
+      raise Exception("Cannot convert empty bitmap to term!")
     response = self.bitmapToTermsRaw(onBits)
     similar = []
     for term in response:
@@ -202,9 +202,9 @@ class Cept(object):
   def bitmapToTermsRaw(self, onBits):
     url = self._buildUrl("expressions/similarTerms")
     data = json.dumps({"positions": onBits})
-    cache_path = "similarTerms-" + hashlib.sha224(data).hexdigest() + ".json"
-    cachePath = os.path.join(self.cache_dir, cache_path)
-    
+    cachePath = "similarTerms-" + hashlib.sha224(data).hexdigest() + ".json"
+    cachePath = os.path.join(self.cacheDir, cachePath)
+
     # Get it from the cache if it's there.
     if os.path.exists(cachePath):
       return json.loads(open(cachePath).read())
@@ -220,12 +220,15 @@ class Cept(object):
       return json.loads(response.content)
 
 
-  def _buildUrl(self, endpoint, params={}):
+  def _buildUrl(self, endpoint, params=None):
+    if params is None:
+      params = {}
     params["retinaName"] = self.retina
-    return "%s%s?%s" % (self.api_url, endpoint, urllib.urlencode(params))
+    return "%s%s?%s" % (self.apiUrl, endpoint, urllib.urlencode(params))
 
 
-  def _bitmapToSdr(self, bitmap):
+  @staticmethod
+  def _bitmapToSdr(bitmap):
     width = bitmap["width"]
     height = bitmap["height"]
     total = width * height
@@ -247,5 +250,4 @@ class Cept(object):
         else:
           nextOn = positions.pop(0)
 
-    
     return sdr
