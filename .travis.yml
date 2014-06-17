@@ -12,5 +12,5 @@ script:
 - nosetests --with-coverage
 
 after_success:
-- pip install python-coverage
+- pip install python-coveralls
 - coveralls
