@@ -146,6 +146,40 @@ class Cept(object):
 
   def getSdr(self, term):
     return self._bitmapToSdr(self.getBitmap(term))
+  
+  
+  def compare(self, bitmap1, bitmap2):
+    """
+    Given two bitmaps, return their comparison, i.e. a dict with the CEPT
+    comparison metrics.
+    
+    Here's an example return dict:
+    
+      {
+        "Cosine-Similarity": 0.6666666666666666,
+        "Euclidean-Distance": 0.3333333333333333,
+        "Jaccard-Distance": 0.5,
+        "Overlapping-all": 6,
+        "Overlapping-left-right": 0.6666666666666666,
+        "Overlapping-right-left": 0.6666666666666666,
+        "Size-left": 9,
+        "Size-right": 9,
+        "Weighted-Scoring": 0.4436476984102028
+      }
+      
+    """
+    url = self._buildUrl("compare")
+    data = json.dumps(
+      [
+        {"positions": bitmap1},
+        {"positions": bitmap2}
+      ]
+    )
+    headers = {"Content-Type": "application/json"}
+    response = requests.post(url,
+                             headers=headers,
+                             data=data)
+    return json.loads(response.content)
 
 
   def bitmapToTerms(self, onBits):
