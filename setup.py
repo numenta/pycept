@@ -24,6 +24,7 @@ sdict.update({
     'install_requires': [
         'requests',
         'nose',
+        'coverage',
         'httpretty'],
     'test_suite': 'tests.unit',
     'packages' : ['pycept'],

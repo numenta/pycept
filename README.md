@@ -1,4 +1,4 @@
-# Pycept [![Build Status](https://travis-ci.org/numenta/pycept.svg?branch=master)](https://travis-ci.org/numenta/pycept)
+# Pycept [![Build Status](https://travis-ci.org/numenta/pycept.svg?branch=master)](https://travis-ci.org/numenta/pycept) [![Coverage Status](https://coveralls.io/repos/numenta/pycept/badge.png)](https://coveralls.io/r/numenta/pycept)
 
 ## A python client for the CEPT API
 
