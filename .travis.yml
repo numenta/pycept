@@ -4,7 +4,7 @@ python:
 
 deploy:
   provider: pypi
-  user: rhyolight
+  user: numenta
   password:
     secure: Csy43XEGiWWZFK+YVlVNQk3Wm0OFQPM9IJGDuxrnI8nPuoXcMiQ8z23dcwpx/jaEQqYwSKViCordlgOgGLj6usINHQZfhv9SzmNlRWDYxrBLBMa76jAmpeX8bwzYWc+g9E39JrxdNSGUk011ROZVXhuEkY/ifuIjUz2jtXTzgco=
   on:
