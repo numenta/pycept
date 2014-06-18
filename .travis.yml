@@ -4,9 +4,9 @@ python:
 
 deploy:
   provider: pypi
-  user: rhyolight
+  user: numenta
   password:
-    secure: Csy43XEGiWWZFK+YVlVNQk3Wm0OFQPM9IJGDuxrnI8nPuoXcMiQ8z23dcwpx/jaEQqYwSKViCordlgOgGLj6usINHQZfhv9SzmNlRWDYxrBLBMa76jAmpeX8bwzYWc+g9E39JrxdNSGUk011ROZVXhuEkY/ifuIjUz2jtXTzgco=
+    secure: MyAxE9A0x39COGH60r5cbexXQh/KCNw8b47a6nRw6X8buHit7Uc/PawzV6BHyziuez1IfrGDdIMBFZMnmHrS+XjbtBrknCQTeqP3cOvJZePe90o+puF21TVdtyJuat7myWcge5+bsdjwaAGrHIp05H8zaxgO2/LX7Y3xyLmwy8A=
   on:
     repo: numenta/pycept
 
