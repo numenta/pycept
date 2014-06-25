@@ -5,6 +5,8 @@ try:
 except ImportError:
     from distutils.core import setup
 
+sdict = {}
+
 execfile('pycept/version.py', {}, sdict)
 
 sdict.update({
