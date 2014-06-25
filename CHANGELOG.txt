@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+* [`#32`](https://github.com/numenta/pycept/issues/32) Removing README-pypi.rst 
+
 ## 1.0.1
 
 * [`#29`](https://github.com/numenta/pycept/issues/29) Updating how deployment to pypi is handled

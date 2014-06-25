@@ -5,11 +5,6 @@ try:
 except ImportError:
     from distutils.core import setup
 
-with open('README-pypi.rst', 'r') as inp:
-  sdict = {
-    'long_description' : inp.read()
-  }
-
 execfile('pycept/version.py', {}, sdict)
 
 sdict.update({
