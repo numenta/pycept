@@ -1,0 +1,8 @@
+# Changelog
+
+* [`#29`](https://github.com/numenta/pycept/issues/29) Updating how deployment to pypi is handled
+
+## 1.0.0
+
+* Initial release
+

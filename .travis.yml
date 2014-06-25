@@ -9,8 +9,7 @@ deploy:
   password:
     secure: GNC15yU1VzxtYgoX+9Ad2ViPr/tCvKfauDDiZloP0BXX3bARh6UN4lr/NYcRT5pwuKk0LlaKQNJlByqrG341xoAFspkYJ/4sqGMuQHOEF/OeXE0Fbcwzkt3Mlxf98kGPRqWKo0OWpXLgWA+CVNyLCkyXzMtcEODMkFPDrUj9CtM=
   on:
-    repo: numenta/pycept
-    tags: true
+    branch: master
 
 install:
 - pip install requests
