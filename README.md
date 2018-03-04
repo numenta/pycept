@@ -1,6 +1,6 @@
 > # This repo is deprecated. Use https://github.com/cortical-io/python-client-sdk
 
-# Pycept [![Build Status](https://travis-ci.org/numenta/pycept.svg?branch=master)](https://travis-ci.org/numenta/pycept) [![Coverage Status](https://coveralls.io/repos/numenta/pycept/badge.png?branch=master)](https://coveralls.io/r/numenta/pycept?branch=master) [![PyPi version](https://pypip.in/v/pycept/badge.png)](https://crate.io/packages/pycept/)
+# Pycept [![Build Status](https://travis-ci.org/numenta/pycept.svg?branch=master)](https://travis-ci.org/numenta/pycept) [![Coverage Status](https://coveralls.io/repos/numenta/pycept/badge.png?branch=master)](https://coveralls.io/r/numenta/pycept?branch=master) [![PyPi version](https://img.shields.io/pypi/v/pycept.svg)](https://crate.io/packages/pycept/)
 
 ## A python client for the CEPT API
 
